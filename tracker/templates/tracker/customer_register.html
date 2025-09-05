@@ -1,248 +1,234 @@
+{% extends 'tracker/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon">
-  <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon">
-  <title>Register Customer</title>
-  <link rel="stylesheet" href="{% static 'assets/css/font-awesome.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/vendors/bootstrap.css' %}">
-  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
-  <link id="color" rel="stylesheet" href="{% static 'assets/css/color-1.css' %}" media="screen">
-  <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
-</head>
-<body>
-  <div class="page-wrapper compact-wrapper" id="pageWrapper">
-    <div class="page-body">
-      <div class="container-fluid">
-        <div class="page-title">
-          <div class="row">
-            <div class="col-6"><h4>Customer Registration</h4></div>
-            <div class="col-6">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'tracker:customers_list' %}">Customers</a></li>
-                <li class="breadcrumb-item active">Register</li>
-              </ol>
-            </div>
-          </div>
+
+{% block title %}Register Customer{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="page-title">
+      <div class="row">
+        <div class="col-6"><h4>Customer Registration</h4></div>
+        <div class="col-6">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'tracker:customers_list' %}">Customers</a></li>
+            <li class="breadcrumb-item active">Register</li>
+          </ol>
         </div>
       </div>
-      <div class="container-fluid">
-        <div class="row justify-content-center">
-          <div class="col-xl-10">
-            <div class="card">
-              <div class="card-header"><h5 class="mb-0">Step {{ step }} of 4</h5></div>
-              <div class="card-body">
-                {% if messages %}
-                  {% for m in messages %}
-                    <div class="alert alert-{{ m.tags }}">{{ m }}</div>
-                  {% endfor %}
-                {% endif %}
+    </div>
+  </div>
 
-                <div class="horizontal-wizard-wrapper">
-                  <div class="row g-3">
-                    <div class="col-12 main-horizontal-header">
-                      <div class="nav nav-pills horizontal-options" role="tablist" aria-orientation="vertical">
-                        <a class="nav-link {% if step == 1 %}active{% endif %}" href="{% url 'tracker:customer_register' %}?step=1">
-                          <div class="horizontal-wizard"><div class="stroke-icon-wizard"><i class="fa fa-user"></i></div><div class="horizontal-wizard-content"><h6>Basic info</h6></div></div>
-                        </a>
-                        <a class="nav-link {% if step == 2 %}active{% endif %}" href="{% url 'tracker:customer_register' %}?step=2">
-                          <div class="horizontal-wizard"><div class="stroke-icon-wizard"><i class="fa fa-list"></i></div><div class="horizontal-wizard-content"><h6>Intent</h6></div></div>
-                        </a>
-                        <a class="nav-link {% if step == 3 %}active{% endif %}" href="{% url 'tracker:customer_register' %}?step=3">
-                          <div class="horizontal-wizard"><div class="stroke-icon-wizard"><i class="fa fa-cogs"></i></div><div class="horizontal-wizard-content"><h6>Types</h6></div></div>
-                        </a>
-                        <a class="nav-link {% if step == 4 %}active{% endif %}" href="{% url 'tracker:customer_register' %}?step=4">
-                          <div class="horizontal-wizard"><div class="stroke-icon-wizard"><i class="fa fa-check"></i></div><div class="horizontal-wizard-content"><h6>Finalize</h6></div></div>
-                        </a>
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-xl-10">
+        <div class="card">
+          <div class="card-header"><h5 class="mb-0">Step {{ step }} of 4</h5></div>
+          <div class="card-body">
+            {% if messages %}
+              {% for m in messages %}
+                <div class="alert alert-{{ m.tags }}">{{ m }}</div>
+              {% endfor %}
+            {% endif %}
+
+            <div class="horizontal-wizard-wrapper">
+              <div class="row g-3">
+                <div class="col-12 main-horizontal-header">
+                  <div class="nav nav-pills horizontal-options" role="tablist" aria-orientation="vertical">
+                    <a class="nav-link {% if step == 1 %}active{% endif %}" href="{% url 'tracker:customer_register' %}?step=1">
+                      <div class="horizontal-wizard"><div class="stroke-icon-wizard"><i class="fa fa-user"></i></div><div class="horizontal-wizard-content"><h6>Basic info</h6></div></div>
+                    </a>
+                    <a class="nav-link {% if step == 2 %}active{% endif %}" href="{% url 'tracker:customer_register' %}?step=2">
+                      <div class="horizontal-wizard"><div class="stroke-icon-wizard"><i class="fa fa-list"></i></div><div class="horizontal-wizard-content"><h6>Intent</h6></div></div>
+                    </a>
+                    <a class="nav-link {% if step == 3 %}active{% endif %}" href="{% url 'tracker:customer_register' %}?step=3">
+                      <div class="horizontal-wizard"><div class="stroke-icon-wizard"><i class="fa fa-cogs"></i></div><div class="horizontal-wizard-content"><h6>Types</h6></div></div>
+                    </a>
+                    <a class="nav-link {% if step == 4 %}active{% endif %}" href="{% url 'tracker:customer_register' %}?step=4">
+                      <div class="horizontal-wizard"><div class="stroke-icon-wizard"><i class="fa fa-check"></i></div><div class="horizontal-wizard-content"><h6>Finalize</h6></div></div>
+                    </a>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <form method="post" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="step" value="{{ step }}">
+
+                    {% if step == 1 %}
+                      <div class="mb-3"><label class="form-label">Basic Information</label></div>
+                      <div class="row g-3">
+                        {% for field in form %}
+                          <div class="col-md-{{ 6 if field.name in 'full_name phone'.split else 12 }}">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}<div class="text-danger f-12">{{ field.errors|striptags }}</div>{% endif %}
+                          </div>
+                        {% endfor %}
                       </div>
-                    </div>
-                    <div class="col-12">
-                      <form method="post" novalidate>
-                        {% csrf_token %}
-                        <input type="hidden" name="step" value="{{ step }}">
+                      <div class="d-flex gap-2 mt-4">
+                        <button class="btn btn-primary" type="submit">Next</button>
+                        <button class="btn btn-outline-secondary" type="submit" name="action" value="save_customer">Save Customer Only</button>
+                      </div>
 
-                        {% if step == 1 %}
-                          <div class="mb-3"><label class="form-label">Basic Information</label></div>
-                          <div class="row g-3">
-                            {% for field in form %}
-                              <div class="col-md-{{ 6 if field.name in 'full_name phone'.split else 12 }}">
+                    {% elif step == 2 %}
+                      <div class="mb-3"><label class="form-label">Service Intent</label></div>
+                      <div class="row g-3">
+                        {% for field in form %}
+                          <div class="col-12">{{ field }} {% if field.errors %}<div class="text-danger f-12">{{ field.errors|striptags }}</div>{% endif %}</div>
+                        {% endfor %}
+                      </div>
+                      <div class="d-flex gap-2 mt-4">
+                        <a class="btn btn-light" href="{% url 'tracker:customer_register' %}?step=1">Back</a>
+                        <button class="btn btn-primary" type="submit">Next</button>
+                      </div>
+
+                    {% elif step == 3 %}
+                      <div class="mb-3"><label class="form-label">Service/Sales Type</label></div>
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <div class="mb-2 f-w-600">Select services (if applicable)</div>
+                          {{ form.service_type }}
+                          {% if form.service_type.errors %}<div class="text-danger f-12">{{ form.service_type.errors|striptags }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                          <div class="mb-2 f-w-600">Select sales type (optional)</div>
+                          {{ form.sales_type }}
+                          {% if form.sales_type.errors %}<div class="text-danger f-12">{{ form.sales_type.errors|striptags }}</div>{% endif %}
+                        </div>
+                      </div>
+                      <div class="d-flex gap-2 mt-4">
+                        <a class="btn btn-light" href="{% url 'tracker:customer_register' %}?step=2">Back</a>
+                        <button class="btn btn-primary" type="submit">Next</button>
+                      </div>
+
+                    {% else %}
+                      <div class="mb-3"><label class="form-label">Customer Type & Order</label></div>
+                      <div class="row g-4">
+                        <div class="col-md-6">
+                          <h6 class="mb-2">Customer Type</h6>
+                          {% for field in form %}
+                            <div class="mb-3">
+                              <label class="form-label">{{ field.label }}</label>
+                              {{ field }}
+                              {% if field.errors %}<div class="text-danger f-12">{{ field.errors|striptags }}</div>{% endif %}
+                            </div>
+                          {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                          <h6 class="mb-2">Vehicle (optional)</h6>
+                          {% if vehicle_form %}
+                            {% for field in vehicle_form %}
+                              <div class="mb-3">
                                 <label class="form-label">{{ field.label }}</label>
                                 {{ field }}
                                 {% if field.errors %}<div class="text-danger f-12">{{ field.errors|striptags }}</div>{% endif %}
                               </div>
                             {% endfor %}
-                          </div>
-                          <div class="d-flex gap-2 mt-4">
-                            <button class="btn btn-primary" type="submit">Next</button>
-                            <button class="btn btn-outline-secondary" type="submit" name="action" value="save_customer">Save Customer Only</button>
-                          </div>
-
-                        {% elif step == 2 %}
-                          <div class="mb-3"><label class="form-label">Service Intent</label></div>
-                          <div class="row g-3">
-                            {% for field in form %}
-                              <div class="col-12">{{ field }} {% if field.errors %}<div class="text-danger f-12">{{ field.errors|striptags }}</div>{% endif %}</div>
-                            {% endfor %}
-                          </div>
-                          <div class="d-flex gap-2 mt-4">
-                            <a class="btn btn-light" href="{% url 'tracker:customer_register' %}?step=1">Back</a>
-                            <button class="btn btn-primary" type="submit">Next</button>
-                          </div>
-
-                        {% elif step == 3 %}
-                          <div class="mb-3"><label class="form-label">Service/Sales Type</label></div>
-                          <div class="row g-3">
-                            <div class="col-12">
-                              <div class="mb-2 f-w-600">Select services (if applicable)</div>
-                              {{ form.service_type }}
-                              {% if form.service_type.errors %}<div class="text-danger f-12">{{ form.service_type.errors|striptags }}</div>{% endif %}
-                            </div>
-                            <div class="col-12">
-                              <div class="mb-2 f-w-600">Select sales type (optional)</div>
-                              {{ form.sales_type }}
-                              {% if form.sales_type.errors %}<div class="text-danger f-12">{{ form.sales_type.errors|striptags }}</div>{% endif %}
-                            </div>
-                          </div>
-                          <div class="d-flex gap-2 mt-4">
-                            <a class="btn btn-light" href="{% url 'tracker:customer_register' %}?step=2">Back</a>
-                            <button class="btn btn-primary" type="submit">Next</button>
-                          </div>
-
-                        {% else %}
-                          <div class="mb-3"><label class="form-label">Customer Type & Order</label></div>
-                          <div class="row g-4">
-                            <div class="col-md-6">
-                              <h6 class="mb-2">Customer Type</h6>
-                              {% for field in form %}
-                                <div class="mb-3">
-                                  <label class="form-label">{{ field.label }}</label>
-                                  {{ field }}
-                                  {% if field.errors %}<div class="text-danger f-12">{{ field.errors|striptags }}</div>{% endif %}
-                                </div>
-                              {% endfor %}
-                            </div>
-                            <div class="col-md-6">
-                              <h6 class="mb-2">Vehicle (optional)</h6>
-                              {% if vehicle_form %}
-                                {% for field in vehicle_form %}
-                                  <div class="mb-3">
-                                    <label class="form-label">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.errors %}<div class="text-danger f-12">{{ field.errors|striptags }}</div>{% endif %}
-                                  </div>
-                                {% endfor %}
-                              {% endif %}
-                            </div>
-                            <div class="col-12">
-                              <h6 class="mb-2">Order Details</h6>
-                              {% if order_form %}
-                                <div class="row g-3">
-                                  <div class="col-md-6">
-                                    <label class="form-label">{{ order_form.type.label }}</label>
-                                    {{ order_form.type }}
-                                    {% if order_form.type.errors %}<div class="text-danger f-12">{{ order_form.type.errors|striptags }}</div>{% endif %}
-                                  </div>
-                                  <div class="col-md-6">
-                                    <label class="form-label">{{ order_form.priority.label }}</label>
-                                    {{ order_form.priority }}
-                                    {% if order_form.priority.errors %}<div class="text-danger f-12">{{ order_form.priority.errors|striptags }}</div>{% endif %}
-                                  </div>
-                                  <div class="col-12">
-                                    <label class="form-label">{{ order_form.vehicle.label }}</label>
-                                    {{ order_form.vehicle }}
-                                    {% if order_form.vehicle.errors %}<div class="text-danger f-12">{{ order_form.vehicle.errors|striptags }}</div>{% endif %}
-                                  </div>
-                                </div>
-                                {% if intent == 'service' %}
-                                  <div class="row g-3 mt-1">
-                                    <div class="col-12">
-                                      <div class="mb-2 f-w-600">Select services</div>
-                                      {{ order_form.service_selection }}
-                                      {% if order_form.service_selection.errors %}<div class="text-danger f-12">{{ order_form.service_selection.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                    <div class="col-md-8">
-                                      <label class="form-label">{{ order_form.description.label }}</label>
-                                      {{ order_form.description }}
-                                      {% if order_form.description.errors %}<div class="text-danger f-12">{{ order_form.description.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                    <div class="col-md-4">
-                                      <label class="form-label">{{ order_form.estimated_duration.label }}</label>
-                                      {{ order_form.estimated_duration }}
-                                      {% if order_form.estimated_duration.errors %}<div class="text-danger f-12">{{ order_form.estimated_duration.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                  </div>
-                                {% elif intent == 'sales' %}
-                                  <div class="row g-3 mt-1">
-                                    <div class="col-md-6">
-                                      <label class="form-label">{{ order_form.item_name.label }}</label>
-                                      {{ order_form.item_name }}
-                                      {% if order_form.item_name.errors %}<div class="text-danger f-12">{{ order_form.item_name.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                    <div class="col-md-6">
-                                      <label class="form-label">{{ order_form.brand.label }}</label>
-                                      {{ order_form.brand }}
-                                      {% if order_form.brand.errors %}<div class="text-danger f-12">{{ order_form.brand.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                    <div class="col-md-6">
-                                      <label class="form-label">{{ order_form.quantity.label }}</label>
-                                      {{ order_form.quantity }}
-                                      {% if order_form.quantity.errors %}<div class="text-danger f-12">{{ order_form.quantity.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                    <div class="col-md-6">
-                                      <label class="form-label">{{ order_form.tire_type.label }}</label>
-                                      {{ order_form.tire_type }}
-                                      {% if order_form.tire_type.errors %}<div class="text-danger f-12">{{ order_form.tire_type.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                  </div>
-                                {% else %}
-                                  <div class="row g-3 mt-1">
-                                    <div class="col-md-6">
-                                      <label class="form-label">{{ order_form.inquiry_type.label }}</label>
-                                      {{ order_form.inquiry_type }}
-                                      {% if order_form.inquiry_type.errors %}<div class="text-danger f-12">{{ order_form.inquiry_type.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                    <div class="col-md-6">
-                                      <label class="form-label">{{ order_form.contact_preference.label }}</label>
-                                      {{ order_form.contact_preference }}
-                                      {% if order_form.contact_preference.errors %}<div class="text-danger f-12">{{ order_form.contact_preference.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                    <div class="col-12">
-                                      <label class="form-label">{{ order_form.questions.label }}</label>
-                                      {{ order_form.questions }}
-                                      {% if order_form.questions.errors %}<div class="text-danger f-12">{{ order_form.questions.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                    <div class="col-md-6">
-                                      <label class="form-label">{{ order_form.follow_up_date.label }}</label>
-                                      {{ order_form.follow_up_date }}
-                                      {% if order_form.follow_up_date.errors %}<div class="text-danger f-12">{{ order_form.follow_up_date.errors|striptags }}</div>{% endif %}
-                                    </div>
-                                  </div>
-                                {% endif %}
-                              {% endif %}
-                            </div>
-                          </div>
-                          <div class="d-flex gap-2 mt-4">
-                            <a class="btn btn-light" href="{% url 'tracker:customer_register' %}?step=3">Back</a>
-                            <button class="btn btn-success" type="submit">Submit</button>
-                          </div>
-
-                          {% if step1 or step2 or step3 %}
-                            <hr>
-                            <h6 class="mb-2">Summary</h6>
-                            <div class="row g-2">
-                              <div class="col-md-4"><div class="f-light">Name</div><div class="f-w-600">{{ step1.full_name }}</div></div>
-                              <div class="col-md-4"><div class="f-light">Phone</div><div class="f-w-600">{{ step1.phone }}</div></div>
-                              <div class="col-md-4"><div class="f-light">Intent</div><div class="f-w-600 text-capitalize">{{ step2.intent }}</div></div>
-                            </div>
                           {% endif %}
-                        {% endif %}
-                      </form>
-                    </div>
-                  </div>
+                        </div>
+                        <div class="col-12">
+                          <h6 class="mb-2">Order Details</h6>
+                          {% if order_form %}
+                            <div class="row g-3">
+                              <div class="col-md-6">
+                                <label class="form-label">{{ order_form.type.label }}</label>
+                                {{ order_form.type }}
+                                {% if order_form.type.errors %}<div class="text-danger f-12">{{ order_form.type.errors|striptags }}</div>{% endif %}
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label">{{ order_form.priority.label }}</label>
+                                {{ order_form.priority }}
+                                {% if order_form.priority.errors %}<div class="text-danger f-12">{{ order_form.priority.errors|striptags }}</div>{% endif %}
+                              </div>
+                              <div class="col-12">
+                                <label class="form-label">{{ order_form.vehicle.label }}</label>
+                                {{ order_form.vehicle }}
+                                {% if order_form.vehicle.errors %}<div class="text-danger f-12">{{ order_form.vehicle.errors|striptags }}</div>{% endif %}
+                              </div>
+                            </div>
+                            {% if intent == 'service' %}
+                              <div class="row g-3 mt-1">
+                                <div class="col-12">
+                                  <div class="mb-2 f-w-600">Select services</div>
+                                  {{ order_form.service_selection }}
+                                  {% if order_form.service_selection.errors %}<div class="text-danger f-12">{{ order_form.service_selection.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                  <label class="form-label">{{ order_form.description.label }}</label>
+                                  {{ order_form.description }}
+                                  {% if order_form.description.errors %}<div class="text-danger f-12">{{ order_form.description.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                  <label class="form-label">{{ order_form.estimated_duration.label }}</label>
+                                  {{ order_form.estimated_duration }}
+                                  {% if order_form.estimated_duration.errors %}<div class="text-danger f-12">{{ order_form.estimated_duration.errors|striptags }}</div>{% endif %}
+                                </div>
+                              </div>
+                            {% elif intent == 'sales' %}
+                              <div class="row g-3 mt-1">
+                                <div class="col-md-6">
+                                  <label class="form-label">{{ order_form.item_name.label }}</label>
+                                  {{ order_form.item_name }}
+                                  {% if order_form.item_name.errors %}<div class="text-danger f-12">{{ order_form.item_name.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label">{{ order_form.brand.label }}</label>
+                                  {{ order_form.brand }}
+                                  {% if order_form.brand.errors %}<div class="text-danger f-12">{{ order_form.brand.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label">{{ order_form.quantity.label }}</label>
+                                  {{ order_form.quantity }}
+                                  {% if order_form.quantity.errors %}<div class="text-danger f-12">{{ order_form.quantity.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label">{{ order_form.tire_type.label }}</label>
+                                  {{ order_form.tire_type }}
+                                  {% if order_form.tire_type.errors %}<div class="text-danger f-12">{{ order_form.tire_type.errors|striptags }}</div>{% endif %}
+                                </div>
+                              </div>
+                            {% else %}
+                              <div class="row g-3 mt-1">
+                                <div class="col-md-6">
+                                  <label class="form-label">{{ order_form.inquiry_type.label }}</label>
+                                  {{ order_form.inquiry_type }}
+                                  {% if order_form.inquiry_type.errors %}<div class="text-danger f-12">{{ order_form.inquiry_type.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label">{{ order_form.contact_preference.label }}</label>
+                                  {{ order_form.contact_preference }}
+                                  {% if order_form.contact_preference.errors %}<div class="text-danger f-12">{{ order_form.contact_preference.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-12">
+                                  <label class="form-label">{{ order_form.questions.label }}</label>
+                                  {{ order_form.questions }}
+                                  {% if order_form.questions.errors %}<div class="text-danger f-12">{{ order_form.questions.errors|striptags }}</div>{% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                  <label class="form-label">{{ order_form.follow_up_date.label }}</label>
+                                  {{ order_form.follow_up_date }}
+                                  {% if order_form.follow_up_date.errors %}<div class="text-danger f-12">{{ order_form.follow_up_date.errors|striptags }}</div>{% endif %}
+                                </div>
+                              </div>
+                            {% endif %}
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="d-flex gap-2 mt-4">
+                        <a class="btn btn-light" href="{% url 'tracker:customer_register' %}?step=3">Back</a>
+                        <button class="btn btn-success" type="submit">Submit</button>
+                      </div>
+
+                      {% if step1 or step2 or step3 %}
+                        <hr>
+                        <h6 class="mb-2">Summary</h6>
+                        <div class="row g-2">
+                          <div class="col-md-4"><div class="f-light">Name</div><div class="f-w-600">{{ step1.full_name }}</div></div>
+                          <div class="col-md-4"><div class="f-light">Phone</div><div class="f-w-600">{{ step1.phone }}</div></div>
+                          <div class="col-md-4"><div class="f-light">Intent</div><div class="f-w-600 text-capitalize">{{ step2.intent }}</div></div>
+                        </div>
+                      {% endif %}
+                    {% endif %}
+                  </form>
                 </div>
               </div>
             </div>
@@ -251,7 +237,6 @@
       </div>
     </div>
   </div>
-  <script src="{% static 'assets/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+
   <script src="{% static 'assets/js/form-wizard/form-wizard.js' %}"></script>
-</body>
-</html>
+{% endblock %}
