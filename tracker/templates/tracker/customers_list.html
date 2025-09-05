@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon">
+  <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon">
+  <title>Customers</title>
+  <link rel="stylesheet" href="{% static 'assets/css/vendors/bootstrap.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+  <link id="color" rel="stylesheet" href="{% static 'assets/css/color-1.css' %}" media="screen">
+  <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
+</head>
+<body>
+  <div class="page-wrapper compact-wrapper" id="pageWrapper">
+    <div class="page-body">
+      <div class="container-fluid">
+        <div class="page-title">
+          <div class="row">
+            <div class="col-6"><h4>Customers</h4></div>
+            <div class="col-6">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'tracker:dashboard' %}">Home</a></li>
+                <li class="breadcrumb-item active">Customers</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container-fluid">
+        <div class="row g-3 align-items-end mb-3">
+          <div class="col-md-8">
+            <form class="row g-2" method="get" action="">
+              <div class="col-sm-6">
+                <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by name, phone, email, code">
+              </div>
+              <div class="col-sm-3">
+                <select name="type" class="form-select">
+                  <option value="">All types</option>
+                  <option value="personal">Personal</option>
+                  <option value="company">Private Company</option>
+                  <option value="government">Government</option>
+                  <option value="ngo">NGO</option>
+                  <option value="bodaboda">Bodaboda</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <select name="status" class="form-select">
+                  <option value="">Any status</option>
+                  <option value="active">Active today</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="col-auto"><button class="btn btn-primary" type="submit">Filter</button></div>
+              <div class="col-auto"><a class="btn btn-outline-secondary" href="{% url 'tracker:customers_export' %}?q={{ q|urlencode }}">Export CSV</a></div>
+              <div class="col-auto"><a class="btn btn-success" href="{% url 'tracker:customer_register' %}">Register Customer</a></div>
+            </form>
+          </div>
+          <div class="col-md-4">
+            <div class="row g-2">
+              <div class="col-4"><div class="card"><div class="card-body p-2 text-center"><div class="f-12 f-light">Active</div><div class="f-w-600">{{ active_customers }}</div></div></div></div>
+              <div class="col-4"><div class="card"><div class="card-body p-2 text-center"><div class="f-12 f-light">New Today</div><div class="f-w-600">{{ new_customers_today }}</div></div></div></div>
+              <div class="col-4"><div class="card"><div class="card-body p-2 text-center"><div class="f-12 f-light">Returning</div><div class="f-w-600">{{ returning_customers }}</div></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Type</th>
+                    <th>Visits</th>
+                    <th>Last Visit</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for c in customers %}
+                    <tr>
+                      <td class="text-nowrap">{{ c.code }}</td>
+                      <td class="text-nowrap">{{ c.full_name }}</td>
+                      <td>{{ c.phone }}</td>
+                      <td class="text-capitalize">{{ c.customer_type|default:'personal' }}</td>
+                      <td>{{ c.total_visits }}</td>
+                      <td>{{ c.last_visit|date:'Y-m-d H:i' }}</td>
+                      <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" href="{% url 'tracker:customer_detail' c.id %}">View</a>
+                        <a class="btn btn-sm btn-outline-success" href="{% url 'tracker:create_order_for_customer' c.id %}">New Order</a>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="7" class="text-center p-4">No customers found</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer">
+            <nav>
+              <ul class="pagination mb-0">
+                {% if customers.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?page={{ customers.previous_page_number }}&q={{ q|urlencode }}">Prev</a></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Page {{ customers.number }} of {{ customers.paginator.num_pages }}</span></li>
+                {% if customers.has_next %}
+                  <li class="page-item"><a class="page-link" href="?page={{ customers.next_page_number }}&q={{ q|urlencode }}">Next</a></li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{% static 'assets/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
