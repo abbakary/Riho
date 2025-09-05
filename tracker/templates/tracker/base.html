@@ -80,8 +80,8 @@
               </div>
             </div>
           </form>
-          <div class="header-logo-wrapper col-auto p-0">  
-            <div class="logo-wrapper"> <a href="index.html"><img class="img-fluid for-light" src="../assets/images/logo/logo_dark.png" alt="logo-light"><img class="img-fluid for-dark" src="../assets/images/logo/logo.png" alt="logo-dark"></a></div>
+          <div class="header-logo-wrapper col-auto p-0">
+            <div class="logo-wrapper"> <a href="{% url 'tracker:dashboard' %}"><img class="img-fluid for-light" src="../assets/images/logo/logo_dark.png" alt="logo-light"><img class="img-fluid for-dark" src="../assets/images/logo/logo.png" alt="logo-dark"></a></div>
             <div class="toggle-sidebar"> <i class="status_toggle middle sidebar-toggle" data-feather="align-center"></i></div>
           </div>
           <div class="left-header col-xxl-5 col-xl-6 col-lg-5 col-md-4 col-sm-3 p-0">
@@ -371,22 +371,47 @@
       <div class="page-body-wrapper">
         <!-- Page Sidebar Start-->
         <div class="sidebar-wrapper" data-layout="stroke-svg">
-          <div class="logo-wrapper"><a href="base.html"><img class="img-fluid" src="../assets/images/logo/logo.png" alt=""></a>
+          <div class="logo-wrapper"><a href="{% url 'tracker:dashboard' %}"><img class="img-fluid" src="../assets/images/logo/logo.png" alt=""></a>
             <div class="back-btn"><i class="fa fa-angle-left"> </i></div>
             <div class="toggle-sidebar"><i class="status_toggle middle sidebar-toggle" data-feather="grid"> </i></div>
           </div>
-          <div class="logo-icon-wrapper"><a href="base.html"><img class="img-fluid" src="../assets/images/logo/logo-icon.png" alt=""></a></div>
+          <div class="logo-icon-wrapper"><a href="{% url 'tracker:dashboard' %}"><img class="img-fluid" src="../assets/images/logo/logo-icon.png" alt=""></a></div>
           <nav class="sidebar-main">
             <div class="left-arrow" id="left-arrow"><i data-feather="arrow-left"></i></div>
             <div id="sidebar-menu">
               <ul class="sidebar-links" id="simple-bar">
-                <li class="back-btn"><a href="index.html"><img class="img-fluid" src="../assets/images/logo/logo-icon.png" alt=""></a>
+                <li class="back-btn"><a href="{% url 'tracker:dashboard' %}"><img class="img-fluid" src="../assets/images/logo/logo-icon.png" alt=""></a>
                   <div class="mobile-back text-end"> <span>Back </span><i class="fa fa-angle-right ps-2" aria-hidden="true"></i></div>
                 </li>
                 <li class="pin-title sidebar-main-title">
-                  <div> 
+                  <div>
                     <h6>Pinned</h6>
                   </div>
+                </li>
+                <li class="sidebar-list"><i class="fa fa-thumb-tack"></i><a class="sidebar-link sidebar-title" href="#">
+                    <svg class="stroke-icon">
+                      <use href="../assets/svg/icon-sprite.svg#stroke-project"></use>
+                    </svg>
+                    <svg class="fill-icon">
+                      <use href="../assets/svg/icon-sprite.svg#fill-project"></use>
+                    </svg><span>POS Tracker</span></a>
+                  <ul class="sidebar-submenu">
+                    <li><a href="{% url 'tracker:dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'tracker:customers_list' %}">Customers</a></li>
+                    <li><a href="{% url 'tracker:customer_register' %}">Register Customer</a></li>
+                    <li><a href="{% url 'tracker:orders_list' %}">Orders</a></li>
+                    <li><a href="{% url 'tracker:order_start' %}">New Order</a></li>
+                    <li><a href="{% url 'tracker:analytics' %}">Analytics</a></li>
+                    <li><a href="{% url 'tracker:reports' %}">Reports</a></li>
+                    <li><a href="{% url 'tracker:reports_advanced' %}">Advanced Reports</a></li>
+                    <li><a href="{% url 'tracker:inquiries' %}">Inquiries</a></li>
+                    <li><a href="{% url 'tracker:inventory_list' %}">Inventory</a></li>
+                    <li><a href="{% url 'tracker:organization' %}">Organizations</a></li>
+                    <li><a href="{% url 'tracker:users_list' %}">Users</a></li>
+                    <li><a href="{% url 'tracker:system_settings' %}">System Settings</a></li>
+                    <li><a href="{% url 'tracker:audit_logs' %}">Audit Logs</a></li>
+                    <li><a href="{% url 'tracker:backup_restore' %}">Backup/Restore</a></li>
+                  </ul>
                 </li>
                 <li class="sidebar-main-title">
                   <div>
@@ -401,7 +426,7 @@
                       <use href="../assets/svg/icon-sprite.svg#fill-home"></use>
                     </svg><span class="lan-3">Dashboard          </span></a>
                   <ul class="sidebar-submenu">
-                    <li><a href="index.html">Default</a></li>
+                    <li><a href="{% url 'tracker:dashboard' %}">Default</a></li>
                     <li><a href="dashboard-02.html">Ecommerce</a></li>
                     <li><a href="dashboard-03.html">Project</a></li>
                   </ul>
@@ -994,7 +1019,13 @@
           </nav>
         </div>
         <!-- Page Sidebar Ends-->
-        <div class="page-body">{% block content %}
+        <div class="page-body">
+          <div class="container-fluid">
+            {% if messages %}
+              {% for m in messages %}<div class="alert alert-{{ m.tags }}">{{ m }}</div>{% endfor %}
+            {% endif %}
+          </div>
+        {% block content %}
           <div class="container-fluid">
             <div class="page-title">
               <div class="row">
@@ -1600,10 +1631,6 @@
     <!-- ECharts -->
     <script src="{% static 'assets/js/chart/echart/esl.js' %}"></script>
     <script src="{% static 'assets/js/chart/echart/config.js' %}"></script>
-    <script src="{% static 'assets/js/chart/echart/pie-chart/facePrint.js' %}"></script>
-    <script src="{% static 'assets/js/chart/echart/pie-chart/testHelper.js' %}"></script>
-    <script src="{% static 'assets/js/chart/echart/pie-chart/custom-transition-texture.js' %}"></script>
-    <script src="{% static 'assets/js/chart/echart/data/symbols.js' %}"></script>
     
     <!-- Calendar / Date Picker -->
     <script src="{% static 'assets/js/datepicker/date-picker/datepicker.js' %}"></script>
@@ -1616,6 +1643,28 @@
     <!-- App & Theme -->
     <script src="{% static 'assets/js/script.js' %}"></script>
     <script src="{% static 'assets/js/theme-customizer/customizer.js' %}"></script>
-    
+
+    <script>
+      // Prefix relative "../assets/" paths to Django static URL for any leftover assets in template content
+      (function(){
+        var STATIC_URL = "{% static '' %}";
+        function fixAttr(selector, attr){
+          document.querySelectorAll(selector).forEach(function(el){
+            var v = el.getAttribute(attr) || '';
+            if(v.indexOf('../assets/') === 0){
+              el.setAttribute(attr, STATIC_URL + v.replace('../',''));
+            }
+          });
+        }
+        document.addEventListener('DOMContentLoaded', function(){
+          fixAttr('[src^="../assets/"]', 'src');
+          fixAttr('link[href^="../assets/"]', 'href');
+          fixAttr('use[href^="../assets/"]', 'href');
+        });
+      })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+
   </body>
 </html>
