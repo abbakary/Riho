@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon">
+  <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon">
+  <title>Customer {{ customer.code }}</title>
+  <link rel="stylesheet" href="{% static 'assets/css/vendors/bootstrap.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+  <link id="color" rel="stylesheet" href="{% static 'assets/css/color-1.css' %}" media="screen">
+  <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
+</head>
+<body>
+  <div class="page-wrapper compact-wrapper" id="pageWrapper">
+    <div class="page-body">
+      <div class="container-fluid">
+        <div class="page-title">
+          <div class="row">
+            <div class="col-6"><h4>Customer Details</h4></div>
+            <div class="col-6">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'tracker:customers_list' %}">Customers</a></li>
+                <li class="breadcrumb-item active">{{ customer.full_name }}</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="card">
+              <div class="card-header"><h5 class="mb-0">Profile</h5></div>
+              <div class="card-body">
+                <div class="mb-2 f-w-600">{{ customer.full_name }} <span class="badge bg-light text-dark">{{ customer.code }}</span></div>
+                <div class="mb-1"><span class="f-light">Phone:</span> {{ customer.phone }}</div>
+                <div class="mb-1"><span class="f-light">Email:</span> {{ customer.email|default:'-' }}</div>
+                <div class="mb-1"><span class="f-light">Type:</span> {{ customer.customer_type|default:'personal' }}</div>
+                {% if customer.organization_name %}
+                  <div class="mb-1"><span class="f-light">Organization:</span> {{ customer.organization_name }}</div>
+                {% endif %}
+                {% if customer.tax_number %}
+                  <div class="mb-1"><span class="f-light">Tax No:</span> {{ customer.tax_number }}</div>
+                {% endif %}
+                {% if customer.personal_subtype %}
+                  <div class="mb-1"><span class="f-light">Subtype:</span> {{ customer.personal_subtype }}</div>
+                {% endif %}
+                <div class="mb-1"><span class="f-light">Registered:</span> {{ customer.registration_date|date:'Y-m-d H:i' }}</div>
+                <div class="mb-1"><span class="f-light">Last visit:</span> {{ customer.last_visit|date:'Y-m-d H:i' }}</div>
+                <div class="mb-3"><span class="f-light">Total visits:</span> {{ customer.total_visits }}</div>
+                <div class="d-flex gap-2">
+                  <a class="btn btn-primary btn-sm" href="{% url 'tracker:create_order_for_customer' customer.id %}">Create Order</a>
+                  <a class="btn btn-outline-secondary btn-sm" href="{% url 'tracker:customer_edit' customer.id %}">Edit</a>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h6 class="mb-0">Vehicles</h6></div>
+              <div class="card-body">
+                {% if vehicles %}
+                  <ul class="list-group list-group-flush">
+                    {% for v in vehicles %}
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ v.plate_number }} — {{ v.make }} {{ v.model }}</span>
+                        <span class="badge bg-light text-dark">{{ v.vehicle_type|default:'-' }}</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <div class="f-light">No vehicles on file.</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Orders</h5>
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'tracker:orders_list' %}?customer={{ customer.id }}">View all</a>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table mb-0">
+                    <thead>
+                      <tr>
+                        <th>Order</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Created</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for o in orders %}
+                        <tr>
+                          <td>{{ o.order_number }}</td>
+                          <td class="text-capitalize">{{ o.type }}</td>
+                          <td class="text-capitalize">{{ o.status }}</td>
+                          <td class="text-capitalize">{{ o.priority }}</td>
+                          <td>{{ o.created_at|date:'Y-m-d H:i' }}</td>
+                          <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{% url 'tracker:order_detail' o.id %}">Open</a></td>
+                        </tr>
+                      {% empty %}
+                        <tr><td colspan="6" class="text-center p-4">No orders yet</td></tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{% static 'assets/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

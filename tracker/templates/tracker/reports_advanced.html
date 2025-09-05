@@ -1,0 +1,156 @@
+{% extends 'tracker/base.html' %}
+{% load static %}
+
+{% block title %}Advanced Reports{% endblock %}
+
+{% block content %}
+  <div class="container-fluid">
+    <div class="page-title">
+      <div class="row">
+        <div class="col-6"><h4>Advanced Reports</h4></div>
+        <div class="col-6">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'tracker:dashboard' %}">Home</a></li>
+            <li class="breadcrumb-item active">Advanced Reports</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <form class="row g-2 align-items-end mb-3" method="get" action="">
+      <div class="col-sm-3">
+        <label class="form-label mb-1">Period</label>
+        <select name="period" class="form-select">
+          <option value="daily" {% if period == 'daily' %}selected{% endif %}>Daily</option>
+          <option value="weekly" {% if period == 'weekly' %}selected{% endif %}>Weekly</option>
+          <option value="monthly" {% if period == 'monthly' %}selected{% endif %}>Monthly</option>
+          <option value="yearly" {% if period == 'yearly' %}selected{% endif %}>Yearly</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <label class="form-label mb-1">Report Type</label>
+        <select name="type" class="form-select">
+          <option value="overview" {% if report_type == 'overview' %}selected{% endif %}>Overview</option>
+          <option value="customers" {% if report_type == 'customers' %}selected{% endif %}>Customers</option>
+          <option value="inquiries" {% if report_type == 'inquiries' %}selected{% endif %}>Inquiries</option>
+        </select>
+      </div>
+      <div class="col-sm-6 d-flex gap-2 justify-content-end">
+        <button class="btn btn-primary" type="submit">Apply</button>
+      </div>
+    </form>
+
+    <div class="row g-3 mb-3">
+      <div class="col-sm-6 col-xl-3"><div class="card"><div class="card-body text-center"><div class="f-light f-12">Total Orders</div><div class="f-w-600 f-20">{{ stats.total_orders }}</div></div></div></div>
+      <div class="col-sm-6 col-xl-3"><div class="card"><div class="card-body text-center"><div class="f-light f-12">Completed</div><div class="f-w-600 f-20">{{ stats.completed_orders }}</div></div></div></div>
+      <div class="col-sm-6 col-xl-3"><div class="card"><div class="card-body text-center"><div class="f-light f-12">Pending</div><div class="f-w-600 f-20">{{ stats.pending_orders }}</div></div></div></div>
+      <div class="col-sm-6 col-xl-3"><div class="card"><div class="card-body text-center"><div class="f-light f-12">Customers</div><div class="f-w-600 f-20">{{ stats.total_customers }}</div></div></div></div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-xl-8">
+        <div class="card">
+          <div class="card-header card-no-border"><h5>Trend</h5></div>
+          <div class="card-body"><div id="chart-trend"></div></div>
+        </div>
+      </div>
+      <div class="col-xl-4">
+        <div class="card mb-3">
+          <div class="card-header card-no-border"><h5>Order Types</h5></div>
+          <div class="card-body"><div id="chart-orders"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header card-no-border"><h5>Status</h5></div>
+          <div class="card-body"><div id="chart-status"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header card-no-border">
+        <h5 class="mb-0">
+          {% if report_type == 'customers' %}Recent Customers{% elif report_type == 'inquiries' %}Recent Inquiries{% else %}Recent Orders{% endif %}
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              {% if report_type == 'customers' %}
+                <tr><th>Code</th><th>Name</th><th>Phone</th><th>Registered</th></tr>
+              {% elif report_type == 'inquiries' %}
+                <tr><th>#</th><th>Customer</th><th>Type</th><th>Status</th><th>Created</th></tr>
+              {% else %}
+                <tr><th>Order</th><th>Customer</th><th>Type</th><th>Status</th><th>Created</th></tr>
+              {% endif %}
+            </thead>
+            <tbody>
+              {% if report_type == 'customers' %}
+                {% for c in data_items %}
+                  <tr>
+                    <td class="text-nowrap">{{ c.code }}</td>
+                    <td class="text-nowrap"><a href="{% url 'tracker:customer_detail' c.id %}">{{ c.full_name }}</a></td>
+                    <td>{{ c.phone }}</td>
+                    <td>{{ c.registration_date|date:'Y-m-d H:i' }}</td>
+                  </tr>
+                {% empty %}<tr><td colspan="4" class="text-center p-4">No data</td></tr>{% endfor %}
+              {% elif report_type == 'inquiries' %}
+                {% for o in data_items %}
+                  <tr>
+                    <td>#{{ o.id }}</td>
+                    <td class="text-nowrap"><a href="{% url 'tracker:customer_detail' o.customer.id %}">{{ o.customer.full_name }}</a></td>
+                    <td>{{ o.inquiry_type|default:'General' }}</td>
+                    <td class="text-capitalize">{{ o.status }}</td>
+                    <td>{{ o.created_at|date:'Y-m-d H:i' }}</td>
+                  </tr>
+                {% empty %}<tr><td colspan="5" class="text-center p-4">No data</td></tr>{% endfor %}
+              {% else %}
+                {% for o in data_items %}
+                  <tr>
+                    <td class="text-nowrap"><a href="{% url 'tracker:order_detail' o.id %}">{{ o.order_number }}</a></td>
+                    <td class="text-nowrap"><a href="{% url 'tracker:customer_detail' o.customer.id %}">{{ o.customer.full_name }}</a></td>
+                    <td class="text-capitalize">{{ o.type }}</td>
+                    <td class="text-capitalize">{{ o.status }}</td>
+                    <td>{{ o.created_at|date:'Y-m-d H:i' }}</td>
+                  </tr>
+                {% empty %}<tr><td colspan="5" class="text-center p-4">No data</td></tr>{% endfor %}
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script id="chart-data" type="application/json">{{ chart_data|safe }}</script>
+    <script>
+      (function(){
+        var payload = JSON.parse(document.getElementById('chart-data').textContent);
+        // Trend (line)
+        var trendOptions = {
+          chart: { type: 'line', height: 300 },
+          series: [{ name: 'Orders', data: payload.trend.values }],
+          xaxis: { categories: payload.trend.labels, labels: { rotate: -45 } },
+          stroke: { width: 2 },
+        };
+        new ApexCharts(document.querySelector('#chart-trend'), trendOptions).render();
+        // Orders (donut)
+        var orderOptions = {
+          chart: { type: 'donut', height: 250 },
+          series: payload.orders.values,
+          labels: payload.orders.labels,
+          legend: { position: 'bottom' }
+        };
+        new ApexCharts(document.querySelector('#chart-orders'), orderOptions).render();
+        // Status (bar)
+        var statusOptions = {
+          chart: { type: 'bar', height: 250 },
+          series: [{ name: 'Count', data: payload.status.values }],
+          xaxis: { categories: payload.status.labels },
+        };
+        new ApexCharts(document.querySelector('#chart-status'), statusOptions).render();
+      })();
+    </script>
+  </div>
+{% endblock %}
