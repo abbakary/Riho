@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon">
+  <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" type="image/x-icon">
+  <title>Reports</title>
+  <link rel="stylesheet" href="{% static 'assets/css/vendors/bootstrap.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+  <link id="color" rel="stylesheet" href="{% static 'assets/css/color-1.css' %}" media="screen">
+  <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}">
+</head>
+<body>
+  <div class="page-wrapper compact-wrapper" id="pageWrapper">
+    <div class="page-body">
+      <div class="container-fluid">
+        <div class="page-title">
+          <div class="row">
+            <div class="col-6"><h4>Reports</h4></div>
+            <div class="col-6">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'tracker:dashboard' %}">Home</a></li>
+                <li class="breadcrumb-item active">Reports</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-fluid">
+        <div class="row g-3 align-items-end mb-3">
+          <div class="col-lg-9">
+            <form class="row g-2" method="get" action="">
+              <div class="col-sm-3">
+                <label class="form-label mb-1">From</label>
+                <input type="date" name="from" value="{{ filters.from }}" class="form-control">
+              </div>
+              <div class="col-sm-3">
+                <label class="form-label mb-1">To</label>
+                <input type="date" name="to" value="{{ filters.to }}" class="form-control">
+              </div>
+              <div class="col-sm-3">
+                <label class="form-label mb-1">Type</label>
+                <select name="type" class="form-select">
+                  <option value="all" {% if filters.type == 'all' %}selected{% endif %}>All</option>
+                  <option value="service" {% if filters.type == 'service' %}selected{% endif %}>Service</option>
+                  <option value="sales" {% if filters.type == 'sales' %}selected{% endif %}>Sales</option>
+                  <option value="consultation" {% if filters.type == 'consultation' %}selected{% endif %}>Consultation</option>
+                </select>
+              </div>
+              <div class="col-sm-3 d-flex gap-2 align-items-end">
+                <button class="btn btn-primary" type="submit">Apply</button>
+                <a class="btn btn-outline-secondary" href="{% url 'tracker:reports_export' %}?from={{ filters.from }}&to={{ filters.to }}&type={{ filters.type }}">Export CSV</a>
+              </div>
+            </form>
+          </div>
+          <div class="col-lg-3">
+            <div class="row g-2">
+              <div class="col-6"><div class="card"><div class="card-body p-2 text-center"><div class="f-12 f-light">Total</div><div class="f-w-600">{{ stats.total }}</div></div></div></div>
+              <div class="col-6"><div class="card"><div class="card-body p-2 text-center"><div class="f-12 f-light">Completed</div><div class="f-w-600">{{ stats.completed }}</div></div></div></div>
+              <div class="col-6"><div class="card"><div class="card-body p-2 text-center"><div class="f-12 f-light">In Progress</div><div class="f-w-600">{{ stats.in_progress }}</div></div></div></div>
+              <div class="col-6"><div class="card"><div class="card-body p-2 text-center"><div class="f-12 f-light">Cancelled</div><div class="f-w-600">{{ stats.cancelled }}</div></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for o in orders %}
+                    <tr>
+                      <td class="text-nowrap"><a href="{% url 'tracker:order_detail' o.id %}">{{ o.order_number }}</a></td>
+                      <td class="text-nowrap"><a href="{% url 'tracker:customer_detail' o.customer.id %}">{{ o.customer.full_name }}</a></td>
+                      <td class="text-capitalize">{{ o.type }}</td>
+                      <td class="text-capitalize">{{ o.status }}</td>
+                      <td class="text-capitalize">{{ o.priority }}</td>
+                      <td>{{ o.created_at|date:'Y-m-d H:i' }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="6" class="text-center p-4">No results</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{% static 'assets/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
