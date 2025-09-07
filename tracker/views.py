@@ -190,7 +190,7 @@ def dashboard(request: HttpRequest):
 
     return render(
         request,
-        "tracker/dashboard.html",
+        "tracker/Dashboard.html",
         {
             "total_orders": total_orders,
             "total_customers": total_customers,
