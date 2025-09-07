@@ -19,11 +19,42 @@
   </div>
 
   <div class="container-fluid">
+    <div class="card mb-3">
+      <div class="card-header card-no-border"><h5 class="mb-0">Select Customer</h5></div>
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-6">
+            <label class="form-label" for="customer-search-input">Search by name, phone, email, or code</label>
+            <div class="input-group">
+              <input id="customer-search-input" type="text" class="form-control" placeholder="Start typing to search...">
+              <button class="btn btn-outline-secondary" type="button" id="customer-search-clear">Clear</button>
+            </div>
+            <div id="customer-results" class="list-group mt-2"></div>
+          </div>
+          <div class="col-md-6">
+            <div class="border rounded p-2" id="selected-customer-box">
+              {% if customer %}
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="f-w-600">{{ customer.full_name }}</div>
+                    <div class="f-light f-12">{{ customer.phone }}{% if customer.email %} · {{ customer.email }}{% endif %}</div>
+                  </div>
+                  <a class="btn btn-sm btn-outline-secondary" href="{% url 'tracker:order_start' %}">Change</a>
+                </div>
+              {% else %}
+                <div class="f-light f-12">No customer selected</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-body">
-        <form method="post" novalidate>
+        <form method="post" novalidate id="order-create-form">
           {% csrf_token %}
-          {% if customer %}<input type="hidden" name="customer_id" value="{{ customer.id }}">{% endif %}
+          <input type="hidden" name="customer_id" id="customer_id" value="{% if customer %}{{ customer.id }}{% endif %}">
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label">{{ form.type.label }}</label>
@@ -114,7 +145,7 @@
 
           <div class="d-flex gap-2 mt-4">
             <a class="btn btn-light" href="{% url 'tracker:orders_list' %}">Cancel</a>
-            <button class="btn btn-success" type="submit">Create Order</button>
+            <button class="btn btn-success" type="submit" id="submit-order-btn" {% if not customer %}disabled{% endif %}>Create Order</button>
           </div>
         </form>
       </div>
@@ -132,6 +163,72 @@
         document.getElementById('section-consultation').style.display = (t==='consultation')? 'block':'none';
       }
       if(typeEl){ typeEl.addEventListener('change', updateSections); updateSections(); }
+
+      var input = document.getElementById('customer-search-input');
+      var clearBtn = document.getElementById('customer-search-clear');
+      var resultsBox = document.getElementById('customer-results');
+      var hiddenId = document.getElementById('customer_id');
+      var submitBtn = document.getElementById('submit-order-btn');
+      var selectedBox = document.getElementById('selected-customer-box');
+      var vehiclesSelect = document.getElementById('id_vehicle');
+
+      function renderResults(items){
+        resultsBox.innerHTML = '';
+        if(!items || !items.length){
+          var empty = document.createElement('div');
+          empty.className = 'list-group-item f-light f-12';
+          empty.textContent = 'No results';
+          resultsBox.appendChild(empty);
+          return;
+        }
+        items.forEach(function(c){
+          var a = document.createElement('a');
+          a.href = '#';
+          a.className = 'list-group-item list-group-item-action';
+          a.innerHTML = '<div class="d-flex justify-content-between"><div><div class="f-w-600">'+(c.name||'')+'</div><div class="f-light f-12">'+(c.phone||'')+(c.email?(' · '+c.email):'')+'</div></div><div class="f-light f-12">'+(c.code||'')+'</div></div>';
+          a.addEventListener('click', function(e){ e.preventDefault(); selectCustomer(c); });
+          resultsBox.appendChild(a);
+        });
+      }
+      function selectCustomer(c){
+        hiddenId.value = c.id;
+        submitBtn.disabled = false;
+        selectedBox.innerHTML = '<div class="d-flex justify-content-between align-items-center"><div><div class="f-w-600">'+(c.name||'')+'</div><div class="f-light f-12">'+(c.phone||'')+(c.email?(' · '+c.email):'')+'</div></div><button class="btn btn-sm btn-outline-secondary" type="button" id="change-customer">Change</button></div>';
+        var changeBtn = selectedBox.querySelector('#change-customer');
+        if(changeBtn){ changeBtn.addEventListener('click', function(){ hiddenId.value=''; submitBtn.disabled=true; input.value=''; resultsBox.innerHTML=''; selectedBox.innerHTML = '<div class="f-light f-12">No customer selected</div>'; fetchRecent(); }); }
+        fetchCustomerVehicles(c.id);
+      }
+      function fetchRecent(){
+        fetch('{% url 'tracker:customers_search' %}?recent=1').then(r=>r.json()).then(function(data){ renderResults(data.results||[]); });
+      }
+      function search(q){
+        var url = '{% url 'tracker:customers_search' %}?q=' + encodeURIComponent(q||'');
+        fetch(url).then(r=>r.json()).then(function(data){ renderResults(data.results||[]); });
+      }
+      function fetchCustomerVehicles(id){
+        var url = '{% url 'tracker:customers_search' %}?id=' + encodeURIComponent(id) + '&details=1';
+        fetch(url).then(r=>r.json()).then(function(data){
+          try{
+            var res = (data.results||[])[0] || {};
+            var v = res.vehicles || [];
+            if(vehiclesSelect){
+              vehiclesSelect.innerHTML = '';
+              var opt0 = document.createElement('option'); opt0.value=''; opt0.textContent='---------'; vehiclesSelect.appendChild(opt0);
+              v.forEach(function(x){ var o=document.createElement('option'); o.value=x.id; o.textContent=(x.plate_number||'') + (x.make?(' · '+x.make):'') + (x.model?(' '+x.model):''); vehiclesSelect.appendChild(o); });
+            }
+          }catch(e){}
+        });
+      }
+      var timer=null;
+      if(input){
+        input.addEventListener('input', function(){
+          var q = this.value.trim();
+          clearTimeout(timer);
+          timer = setTimeout(function(){ if(q.length<2){ fetchRecent(); } else { search(q); } }, 250);
+        });
+        fetchRecent();
+      }
+      if(clearBtn){ clearBtn.addEventListener('click', function(){ input.value=''; fetchRecent(); }); }
     })();
   </script>
   {% endblock %}

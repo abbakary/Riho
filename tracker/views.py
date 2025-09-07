@@ -164,9 +164,33 @@ def dashboard(request: HttpRequest):
         "trend": {"labels": trend_labels, "values": trend_values},
     }
 
+    # Dashboard notifications and alerts
+    from datetime import timedelta
+    now = timezone.now()
+    # Low stock items (threshold = 5)
+    low_stock_items = list(
+        InventoryItem.objects.filter(quantity__lte=5).order_by("quantity", "name")[:10]
+    )
+    # Long in-progress orders (over estimated duration or >120 minutes)
+    long_in_progress = []
+    inprog_qs = Order.objects.filter(status="in_progress").exclude(started_at__isnull=True).select_related("customer", "vehicle")
+    for o in inprog_qs:
+        elapsed = int((now - o.started_at).total_seconds() // 60) if o.started_at else 0
+        limit = int(o.estimated_duration or 120)
+        if elapsed > limit:
+            long_in_progress.append({
+                "id": o.id,
+                "order_number": o.order_number,
+                "customer": o.customer.full_name,
+                "vehicle": o.vehicle.plate_number if o.vehicle else "",
+                "elapsed": elapsed,
+                "limit": limit,
+                "priority": o.priority,
+            })
+
     return render(
         request,
-        "tracker/dashboard.html",
+        "tracker/Dashboard.html",
         {
             "total_orders": total_orders,
             "total_customers": total_customers,
@@ -182,6 +206,8 @@ def dashboard(request: HttpRequest):
             "inventory_preview": inventory_preview,
             "can_manage_inventory": can_manage_inventory,
             "total_stock": total_stock,
+            "low_stock_items": low_stock_items,
+            "long_in_progress": long_in_progress,
         },
     )
 

@@ -11,7 +11,7 @@
         <div class="col-6">
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'tracker:dashboard' %}">
-              <svg class="stroke-icon"><use href="{% static 'assets/svg/icon-sprite.svg' %}#stroke-home"></use></svg></a>
+              <svg class="stroke-icon"><use href="../assets/svg/icon-sprite.svg#stroke-home"></use></svg></a>
             </li>
             <li class="breadcrumb-item">Overview</li>
             <li class="breadcrumb-item active">Live</li>
@@ -127,7 +127,7 @@
                 <tbody>
                   {% for r in recent_orders %}
                     <tr>
-                      <td><div class="product-sub"><a class="f-14 f-w-500" href="{% url 'tracker:order_detail' r.id %}">{{ r.order_number }}</a></div></td>
+                      <td><div class="product-sub"><span class="f-14 f-w-500">{{ r.order_number }}</span></div></td>
                       <td><div class="product-sub"><a class="f-14 f-w-500" href="{% url 'tracker:customer_detail' r.customer.id %}">{{ r.customer.full_name }}</a></div></td>
                       <td class="text-capitalize">{{ r.type }}</td>
                       <td>
@@ -196,13 +196,6 @@
         var chart = new ApexCharts(document.querySelector('#saleschart'), options);
         chart.render();
       } catch(e) {}
-      try{
-        var lowCount = {{ low_stock_items|length|default:0 }};
-        var longCount = {{ long_in_progress|length|default:0 }};
-        var total = (lowCount + longCount) || 0;
-        var badge = document.querySelector('.notification-box .badge');
-        if(badge){ badge.textContent = total; }
-      }catch(e){}
     })();
   </script>
 {% endblock %}
